@@ -1,0 +1,12 @@
+<div class="box">
+	<div class="header" style="clear: both; overflow: hidden;">
+		<div class="left" style="float: left; width: 45%">
+			<strong>Edit a document (<?php echo $this->document[ '_id' ]; ?></strong>
+		</div>
+		<div class="right" style="float: right; width: 45%; text-align: right;">
+			<a href="<?php echo SITE_ROOT; ?>collection/get/<?php echo $this->collectionName; ?>">&laquo; Back to collection</a>
+		</div>
+	</div>
+	<textarea class="code" rows="25"><?php echo $this->code; ?></textarea>
+	<input type="submit" name="_submit" value="Save Document" /><br /><br />
+</div>

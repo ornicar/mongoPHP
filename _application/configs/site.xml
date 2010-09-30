@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>	
+	<production>
+		<application>
+			<name>mongoPHP</name>
+			<desc>mongoPHP</desc>
+			<path>/mongo/</path>
+			<controllers>
+				<location>_application/controllers/</location>
+				<defaultController>Index</defaultController>
+			</controllers>
+			<views>
+				<location>_application/views/</location>
+				<defaultLayout>common</defaultLayout>
+			</views>
+		</application>
+		<site>
+			<javascript>
+				<path>_public/_js/</path>
+				<required>
+					<file>prototype</file>
+					<file>global</file>
+				</required>
+			</javascript>
+		</site>
+		<environment>
+			<default_timezone>America/New_York</default_timezone>
+			<display_errors>1</display_errors>
+			<debug>0</debug>
+			<compress_output>1</compress_output>
+			<log_queries>0</log_queries>
+		</environment>
+		<session>
+			<prefix>mongophp</prefix>
+			<salt>hai</salt>
+		</session>
+		<mongo>
+			<address>mongodb://</address>
+		</mongo>
+	</production>
+</config>

@@ -1,0 +1,271 @@
+<div class="box">
+	<div class="header" style="clear: both; overflow: hidden;">
+		<div class="left" style="float: left; width: 45%">
+			<strong>Documents</strong>
+		</div>
+		<div class="right" style="float: right; width: 45%; text-align: right; position: absolute; right: 16px; margin: -4px 0 0 0;">
+		</div>
+	</div>
+	<ul style="list-style: none; clear: both; overflow: hidden; text-align: center;">
+		<li style="float: left; width: 19%;"><a href="#" style="width: auto;" id="insert_a">[Insert a new document]</a></li>
+		<li style="float: left; width: 19%;"><a href="#" style="width: auto;" id="index_a">[Show indexes]</a></li>
+		<li style="float: left; width: 19%;"><a href="#" style="width: auto;" id="sort_a">[Sort]</a></li>
+		<li style="float: left; width: 19%;"><a href="#" style="width: auto;" id="search_a">[Search]</a></li>
+		<li style="float: left; width: 19%;"><a href="#" style="width: auto;" id="query_a">[Query]</a</li>
+	</ul>
+	<?php if( count( $this->documents ) > 0 ) { ?>
+	<ul class="documents">
+	<?php foreach( $this->documents as $document ) { ?>
+		<li>
+			<a name="<?php echo $document[ '_id' ]; ?>"></a>
+			<div class="options">
+				<ul>
+					<li><a href="<?php echo SITE_ROOT . 'document/remove/' . $document[ '_id' ]; ?>" onclick="return confirm('Are you sure you want to remove this document? This action is irreversible.');">[x]</a></li>
+					<li><a class="edit" mongoid="<?php echo $document[ '_id' ]; ?>" href="<?php echo SITE_ROOT . 'document/edit/' . $document[ '_id' ]; ?>">[e]</a></li>
+					<li>(MongoID) <?php echo $document[ '_id' ]; ?></li>
+			</div>
+			<div id="code-<?php echo $document[ '_id' ]; ?>">
+				<pre id="pre-<?php echo $document[ '_id' ]; ?>" mongoid="<?php echo $document[ '_id' ]; ?>"><?php echo Mongo_Utility::output( $document ); ?></pre>
+			</div>
+		</li>
+	<?php } ?>
+	</ul>
+	<?php } else { ?>
+	<p>This collection has no documents.</p>
+	<?php } ?>
+</div>
+<!-- Dialogs -->
+<div id="insert_document" class="info-dialog" title="Insert a new document" style="display: none;">
+	<form action="<?php echo SITE_ROOT; ?>document/add" method="post">
+		<textarea name="document" cols="86" rows="15" style="font-family: arial; font-size: 12px; padding: 8px;">array (
+
+
+)</textarea>
+		<input type="submit" name="_submit" value="Add Document" style="margin: 12px 0 0 0;" />
+	</form>
+</div>
+<div id="indexes" class="info-dialog" title="Indexes" style="display: none;">
+	<form action="<?php echo SITE_ROOT; ?>collection/index" method="post" style="background: white; border-radius: 6px; padding: 10px 40px; font-size: 13px;">
+		<ul style="padding: 0;">
+			<li>
+				<input type="text" name="index[]" value="" /> [<input type="checkbox" name="desc-0" value="true" /> Descending]
+			</li>
+		</ul>
+		
+		<input type="radio" name="type" value="index" checked="checked" /> Index<br />
+		<input type="radio" name="type" value="unique" /> Unique<br /><br />
+		<input type="submit" name="_submit" value="Add index(es)" /> <input type="button" name="_add" value="Add another index field" onclick="$('<li><input type=\'text\' name=\'index[]\' value=\'\' /> [<input type=\'checkbox\' name=\'desc-' + ( i + 1 ) + '\' value=\'true\' /> Descending]</li>').insertAfter( $( '#indexes ul li:last-child' ) ); i++;" />
+		
+	</form>
+	<ol>
+	<?php foreach( $this->indexes as $indexArray ) {
+	
+		$index = '';
+		foreach( $indexArray['key'] as $key => $direction ) {
+		
+			$index .= (!$index ? $key : ', ' . $key);
+			
+			if( !is_object( $direction ) ) {
+			
+					$index .= ' [' . ($direction == -1 ? 'desc' : 'asc') . ']';
+			}
+			
+		}
+		
+		if( isset($indexArray[ 'unique' ] ) && $indexArray[ 'unique' ] ) {
+		
+			$index .= ' [unique]';
+		
+		}
+		
+		if( key( $indexArray[ 'key' ] ) != '_id' || count( $indexArray[ 'key' ] ) !== 1 ) {
+		
+			$index = '[<a href="' . SITE_ROOT . 'collection/unindex/' . $indexArray[ 'key' ] . '" onclick="$.ajax({ url: \'' . SITE_ROOT . 'collection/unindex/' . key( $indexArray[ 'key' ] ) . '\', dataType: \'json\', success: function( i ) { $(\'#index-' . key( $indexArray[ 'key' ] ) . '\').remove(); }}); return false;">x</a>] ' . $index;
+        }
+            
+        echo '<li id="index-' . key( $indexArray[ 'key' ] ) . '">' . $index . '</li>';
+  
+    } ?>
+	</ol>
+</div>
+<div id="sort" title="Sort Documents" style="display: none;">
+	<form action="" method="post">
+		<select name="sort" style="width: 98px;">
+			<option value="$natural">$natural</option>
+		<?php foreach( $this->fields as $field ) { ?>
+			<option value="<?php echo $field; ?>"><?php echo $field; ?></option>
+		<?php } ?>
+		</select> 
+		<select name="order">
+			<option value="asc">asc</option>
+			<option value="desc">desc</option>
+		</select> 
+		<input type="submit" name="_submit" value="Sort" />
+	</form>
+</div>
+<div id="search" title="Search Documents" style="display: none;">
+	<form action="" method="post">
+		<select name="search" style="width: 98px;">
+		<?php foreach( $this->fields as $field ) { ?>
+			<option value="<?php echo $field; ?>"><?php echo $field; ?></option>
+		<?php } ?>
+		</select> 
+		<input type="text" name="searchTerm" value="" />
+		<input type="submit" name="_submit" value="Search" />
+	</form>
+</div>
+<div id="query" title="Query" style="display: none;">
+	<form action="" method="post">
+		<textarea name="query" cols="80" rows="10"></textarea>
+		<br />
+		<input type="submit" name="_submit" value="Query" style="margin: 9px 0 0 0;" />
+	</form>
+</div>
+<script type="text/javascript">
+	<!--
+	
+	var i = 0;
+	
+	$(function() {
+	
+		$( 'a.edit' ).click( function( e ) {
+			
+			e.preventDefault();
+			
+			var a		= e.currentTarget;
+			var mongoid	= $(a).attr('mongoid');
+			
+			$.ajax({
+			
+				url: a.href,
+				success: function( i ) {
+										
+					$( '<div title="Edit Document (' + mongoid + ')"><form action="<?php echo SITE_ROOT; ?>document/edit/' + mongoid + '" method="post"><textarea name="code" cols="86" rows="15" style="font-family: arial; font-size: 12px; padding: 8px;">' + i + '</textarea><input type="submit" name="_submit" value="Save Document" style="margin: 12px 0 0 0;" /></form></div>' ).dialog({
+						modal: true,
+						position: 'center',
+						width: 500
+					});
+
+				    $( '.ui-dialog' ).css("position","absolute");
+				    $( '.ui-dialog' ).css("top", ( $(window).height() - $( '.ui-dialog' ).height() ) / 2+$(window).scrollTop() + "px");
+				    $( '.ui-dialog' ).css("left", ( $(window).width() - $( '.ui-dialog' ).width() ) / 2+$(window).scrollLeft() + "px");
+
+				}
+			
+			});
+		
+		});
+
+		$( 'pre' ).dblclick( function( e ) {
+			
+			var a		= e.currentTarget;
+			var mongoid	= $(a).attr('mongoid');
+
+			$.ajax({
+			
+				url: '<?php echo SITE_ROOT; ?>document/edit/' + mongoid,
+				success: function( i ) {
+										
+					$(a).hide();
+					$( '<div id="form-' + mongoid + '" style="padding-bottom: 8px; overflow: hidden; clear: both;"><form action="<?php echo SITE_ROOT; ?>document/edit/' + mongoid + '" method="post" style="margin-top: 33px;"><textarea name="code" cols="178" rows="12" style="font-family: arial; font-size: 12px; padding: 8px; border: 0;">' + i + '</textarea><input type="submit" name="_submit" value="Save Document" style="float: left; margin: 12px 0 0 0;" /> </form><input type="submit" name="_cancel" value="Cancel" style="float: left; margin: 12px 0 0 6px;" mongoid="' + mongoid + '" onclick="$(\'#form-' + mongoid + '\').remove(); $(\'#pre-' + mongoid + '\').show();" /></div>' ).insertAfter( $(a) );
+							
+				}
+			
+			});
+		
+		});
+				
+		$( 'div.info-dialog' ).dialog({
+			modal: true,
+			autoOpen: false,
+			position: 'center',
+			width: 500
+		});
+
+		$( '#sort' ).dialog({
+			modal: true,
+			autoOpen: false,
+			position: 'center',
+			width: 250,
+			height: 95
+		});
+
+		$( '#search' ).dialog({
+			modal: true,
+			autoOpen: false,
+			position: 'center',
+			width: 386,
+			height: 100
+		});
+
+		$( '#query' ).dialog({
+			modal: true,
+			autoOpen: false,
+			position: 'center',
+			width: 700,
+			height: 310
+		});
+										
+		$( '#insert_a' ).click(function( e ) {
+			
+			e.preventDefault();
+
+		    $( '.ui-dialog' ).css("position","absolute");
+		    $( '.ui-dialog' ).css("top", ( $(window).height() - $( '.ui-dialog' ).height() ) / 2+$(window).scrollTop() + "px");
+		    $( '.ui-dialog' ).css("left", ( $(window).width() - $( '.ui-dialog' ).width() ) / 2+$(window).scrollLeft() + "px");
+			
+			$( '#insert_document' ).dialog( 'open' );
+		
+		});
+
+		$( '#index_a' ).click(function( e ) {
+			
+			e.preventDefault();
+
+		    $( '.ui-dialog' ).css("position","absolute");
+		    $( '.ui-dialog' ).css("top", ( $(window).height() - $( '.ui-dialog' ).height() ) / 2+$(window).scrollTop() + "px");
+		    $( '.ui-dialog' ).css("left", ( $(window).width() - $( '.ui-dialog' ).width() ) / 2+$(window).scrollLeft() + "px");
+			
+			$( '#indexes' ).dialog( 'open' );
+		
+		});
+
+		$( '#sort_a' ).click(function( e ) {
+			
+			e.preventDefault();
+
+		    $( '.ui-dialog' ).css("position","absolute");
+		    $( '.ui-dialog' ).css("top", ( $(window).height() - $( '.ui-dialog' ).height() ) / 2+$(window).scrollTop() + "px");
+		    $( '.ui-dialog' ).css("left", ( $(window).width() - $( '.ui-dialog' ).width() ) / 2+$(window).scrollLeft() + "px");
+			
+			$( '#sort' ).dialog( 'open' );
+		
+		});
+
+		$( '#search_a' ).click(function( e ) {
+			
+			e.preventDefault();
+
+		    $( '.ui-dialog' ).css("position","absolute");
+		    $( '.ui-dialog' ).css("top", ( $(window).height() - $( '.ui-dialog' ).height() ) / 2+$(window).scrollTop() + "px");
+		    $( '.ui-dialog' ).css("left", ( $(window).width() - $( '.ui-dialog' ).width() ) / 2+$(window).scrollLeft() + "px");
+			
+			$( '#search' ).dialog( 'open' );
+		
+		});
+
+		$( '#query_a' ).click(function( e ) {
+			
+			e.preventDefault();
+
+		    $( '.ui-dialog' ).css("position","absolute");
+		    $( '.ui-dialog' ).css("top", ( $(window).height() - $( '.ui-dialog' ).height() ) / 2+$(window).scrollTop() + "px");
+		    $( '.ui-dialog' ).css("left", ( $(window).width() - $( '.ui-dialog' ).width() ) / 2+$(window).scrollLeft() + "px");
+			
+			$( '#query' ).dialog( 'open' );
+		
+		});
+							
+	});
+	-->
+</script>

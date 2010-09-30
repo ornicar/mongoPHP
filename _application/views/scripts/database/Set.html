@@ -1,0 +1,25 @@
+<div class="box">
+	<div class="header" style="clear: both; overflow: hidden;">
+		<div class="left" style="float: left; width: 45%">
+			<strong>Please select a collection</strong>
+		</div>
+		<div class="right" style="float: right; width: 45%; text-align: right; position: absolute; right: 16px; margin: -4px 0 0 0;">
+			<form action="<?php echo SITE_ROOT; ?>collection/add" method="post">
+				<input type="text" name="collectionName" value="" /> 
+				<input type="submit" name="_submit" value="Add Collection" />
+			</form>
+		</div>
+	</div>
+	<?php if( count( $this->collections ) > 0 ) { ?>
+	<ul class="list">
+	<?php foreach( $this->collections as $i => $value ) { ?>
+		<li<?php if( $i % 2 ) { ?> class="odd"<?php } ?> style="clear: both; overflow: hidden;">
+			<a onclick="return confirm('Are you sure you want to remove this collection? This action is irreversible');" href="<?php echo SITE_ROOT . 'collection/remove/' . $value; ?>" style="width: none; float: left; width: 2%;">[x]</a>
+			<a style="float: right; width: 98%;" href="<?php echo SITE_ROOT . 'collection/get/' . $value; ?>"><?php echo $value; ?></a>
+		</li>
+	<?php } ?>
+	</ul>
+	<?php } else { ?>
+	<p>This database has no collections.</p>
+	<?php } ?>
+</div>
