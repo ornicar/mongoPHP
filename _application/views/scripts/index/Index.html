@@ -11,8 +11,9 @@
 		</div>
 	</div>
 	<ul class="list">
+    <?php $i=0; ?>
 	<?php foreach( $this->databases[ 'databases' ] as $key => $value ) { ?>
-		<li<?php if( $i % 2 ) { ?> class="odd"<?php } ?> style="clear: both; overflow: hidden;">
+		<li<?php if( ++$i % 2 ) { ?> class="odd"<?php } ?> style="clear: both; overflow: hidden;">
 			<a onclick="return confirm('Are you sure you want to drop this database? This action is irreversible');" href="<?php echo SITE_ROOT . 'database/drop/' . $value[ 'name' ]; ?>" style="width: none; float: left; width: 2%;">[x]</a>
 			<a style="float: right; width: 98%;" href="<?php echo SITE_ROOT . 'database/set/' . $value[ 'name' ]; ?>"><?php echo $value[ 'name' ]; ?></a>
 		</li>
